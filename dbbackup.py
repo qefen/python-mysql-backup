@@ -6,11 +6,12 @@
 # using mysqldump and tar utility.
 #
 # Written by : Rahul Kumar
+# Modified by : Kevin Martinez
 # Website: http://tecadmin.net
 # Created date: Dec 03, 2013
-# Last modified: Aug 17, 2018 
-# Tested with : Python 2.7.15 & Python 3.5
-# Script Revision: 1.4
+# Last modified: Nov 04, 2020 
+# Tested with : Python 3.8.5
+# Script Revision: 1.5
 #
 ##########################################################
 
@@ -21,6 +22,7 @@ import time
 import datetime
 import pipes
 
+
 # MySQL database details to which backup to be done. Make sure below user having enough privileges to take databases backup.
 # To take multiple databases backup, create any file like /backup/dbnames.txt and put databases names one on each line and assigned to DB_NAME variable.
 
@@ -29,7 +31,7 @@ DB_USER = 'root'
 DB_USER_PASSWORD = '_mysql_user_password_'
 #DB_NAME = '/backup/dbnameslist.txt'
 DB_NAME = 'db_name_to_backup'
-BACKUP_PATH = '/backup/dbbackup'
+BACKUP_PATH =r"C:\Users\kmartinez\Desktop"
 
 # Getting current DateTime to create the separate backup folder like "20180817-123433".
 DATETIME = time.strftime('%Y%m%d-%H%M%S')
@@ -39,7 +41,7 @@ TODAYBACKUPPATH = BACKUP_PATH + '/' + DATETIME
 try:
     os.stat(TODAYBACKUPPATH)
 except:
-    os.mkdir(TODAYBACKUPPATH)
+     os.makedirs(TODAYBACKUPPATH)
 
 # Code for checking if you want to take single database backup or assinged multiple backups in DB_NAME.
 print ("checking for databases names file.")
@@ -64,18 +66,21 @@ if multi:
    while p <= flength:
        db = dbfile.readline()   # reading database name from file
        db = db[:-1]         # deletes extra line
-       dumpcmd = "mysqldump -h " + DB_HOST + " -u " + DB_USER + " -p" + DB_USER_PASSWORD + " " + db + " > " + pipes.quote(TODAYBACKUPPATH) + "/" + db + ".sql"
+       #dumpcmd = "mysqldump -h " + DB_HOST + " -u " + DB_USER + " -p" + DB_USER_PASSWORD + " " + db + " > " + pipes.quote(TODAYBACKUPPATH) + "\" + db + ".sql"
        os.system(dumpcmd)
-       gzipcmd = "gzip " + pipes.quote(TODAYBACKUPPATH) + "/" + db + ".sql"
+       gzipcmd = "gzip" + pipes.quote(TODAYBACKUPPATH) + "/" + db + ".sql"
        os.system(gzipcmd)
        p = p + 1
    dbfile.close()
 else:
    db = DB_NAME
-   dumpcmd = "mysqldump -h " + DB_HOST + " -u " + DB_USER + " -p" + DB_USER_PASSWORD + " " + db + " > " + pipes.quote(TODAYBACKUPPATH) + "/" + db + ".sql"
+   dumpcmd = 'mysqldump -h {} -u {}  --password={} {}  >{}.sql'.format(DB_HOST,DB_USER,DB_USER_PASSWORD,db,db)
+   #dumpcmd = "mysqldump -h " + DB_HOST + " -u " + DB_USER + " -p " + DB_USER_PASSWORD + " " + db + " > " + pipes.quote(TODAYBACKUPPATH) + "\" + db + ".sql"
    os.system(dumpcmd)
+   print(dumpcmd)
    gzipcmd = "gzip " + pipes.quote(TODAYBACKUPPATH) + "/" + db + ".sql"
-   os.system(gzipcmd)
+   #os.system(gzipcmd)
+   print(gzipcmd)
 
 print ("")
 print ("Backup script completed")
