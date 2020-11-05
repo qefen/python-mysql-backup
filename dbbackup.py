@@ -21,6 +21,7 @@ import os
 import time
 import datetime
 import pipes
+from progress.bar import Bar
 
 
 # MySQL database details to which backup to be done. Make sure below user having enough privileges to take databases backup.
@@ -64,6 +65,7 @@ if multi:
    p = 1
    dbfile = open(DB_NAME,"r")
 
+   bar = Bar('Processing', max=flength)
    while p <= flength:
        db = dbfile.readline()   # reading database name from file
        db = db[:-1]         # deletes extra line
@@ -71,8 +73,10 @@ if multi:
        os.system(dumpcmd)
        gzipcmd = "gzip {}/{}.sql".format(TODAYBACKUPPATH,db)
        os.system(gzipcmd)
+       bar.next()
        p = p + 1
    dbfile.close()
+   bar.finish()
 else:
    db = DB_NAME
    dumpcmd = 'mysqldump -h {} -u {}  --password={} {}  > {}\{}.sql'.format(DB_HOST,DB_USER,DB_USER_PASSWORD,db,TODAYBACKUPPATH,db)
